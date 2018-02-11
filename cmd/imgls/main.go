@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"flag"
 	"fmt"
 	"image"
@@ -27,9 +28,9 @@ func main() {
 	flag.Parse()
 
 	fileNames := flag.Args()
+	cwd, err := os.Getwd()
 	if len(fileNames) == 0 {
 		// If no filenames are provided, use the current directory
-		cwd, err := os.Getwd()
 		if err != nil {
 			fmt.Fprintln(os.Stderr, "Couldn't get current directory. "+err.Error())
 			os.Exit(1)
@@ -39,7 +40,7 @@ func main() {
 	}
 
 	metas := getImageMetas(collectFileNames(fileNames))
-	printOutput(metas)
+	printOutput(metas, cwd)
 }
 
 // Checks if input files array contain directories and adds it's contents to
@@ -117,16 +118,35 @@ func decode(fileName string) (*image.Config, string, int64, error) {
 	return &config, format, fileSize, err
 }
 
-func printOutput(metas []imageMeta) {
+func printOutput(metas []imageMeta, cwd string) {
 	columns := []string{"NUM", "FORMAT", "WIDTH", "HEIGHT", "SIZE", "FILENAME"}
 	fmt.Println(strings.Join(columns, "\t"))
 
 	for i, meta := range metas {
+		// Print relative paths if possible
+		name, err := relativePath(cwd, meta.fileName)
+		if err != nil {
+			name = meta.fileName
+		}
+
 		fmt.Printf(
 			"%d\t%s\t%d\t%d\t%s\t%s\n",
-			i+1, meta.format, meta.width, meta.height, humanReadableFileSize(meta.fileSize), meta.fileName,
+			i+1, meta.format, meta.width, meta.height, humanReadableFileSize(meta.fileSize), name,
 		)
 	}
+}
+
+func relativePath(cwd, fileName string) (string, error) {
+	if cwd == "" {
+		return "", errors.New("can't make path relative to empty string")
+	}
+
+	name, err := filepath.Rel(cwd, fileName)
+	if err != nil {
+		return "", err
+	}
+
+	return name, nil
 }
 
 func humanReadableFileSize(fileSize int64) string {
