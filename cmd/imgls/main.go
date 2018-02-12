@@ -119,6 +119,11 @@ func decode(fileName string) (*image.Config, string, int64, error) {
 }
 
 func printOutput(metas []imageMeta, cwd string) {
+	if len(metas) == 0 {
+		fmt.Println("No loadable images specified.")
+		return
+	}
+
 	columns := []string{"NUM", "FORMAT", "WIDTH", "HEIGHT", "SIZE", "FILENAME"}
 	fmt.Println(strings.Join(columns, "\t"))
 
