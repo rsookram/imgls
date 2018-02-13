@@ -1,10 +1,17 @@
 # imgls
 
-imgls is a command-line tool which prints an ls style listing of image files.
+`imgls` is a command-line tool which prints an ls style listing of image files.
 Inspired by the list output in [feh](https://feh.finalrewind.org/).
 
 
-## Example Output
+## Usage
+
+Pass any number of directories containing images or image files to `imgls` and it
+will output a listing of the images in the directories / the images themselves.
+When run with no arguments, `imgls` will output a listing of the images in the
+current directory.
+
+Example output:
 
 ```
 $ imgls 
