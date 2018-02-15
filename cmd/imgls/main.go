@@ -25,6 +25,10 @@ type imageMeta struct {
 }
 
 func main() {
+	flag.Usage = func() {
+		fmt.Fprintf(os.Stderr, "Usage: %s [files or directories]\n\n", os.Args[0])
+	}
+
 	flag.Parse()
 
 	fileNames := flag.Args()
